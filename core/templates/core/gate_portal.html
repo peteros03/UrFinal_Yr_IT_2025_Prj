@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h3 class="text-center">Gate Verification Portal</h3>
+    </div>
+    <div class="card-body text-center">
+        <div id="nfc-result" class="my-4">
+            <p class="lead">Tap student NFC card to verify</p>
+        </div>
+        <div id="student-info" class="d-none">
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img id="student-photo" src="" class="img-fluid rounded-start" alt="Student Photo">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 id="student-name" class="card-title"></h5>
+                            <p class="card-text">
+                                <strong>ID:</strong> <span id="student-id"></span><br>
+                                <strong>Program:</strong> <span id="student-program"></span><br>
+                                <strong>Laptop:</strong> <span id="student-laptop"></span>
+                            </p>
+                            <p id="finance-status" class="card-text"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+async function readNFC() {
+    if ('nfc' in navigator) {
+        try {
+            const reader = new NDEFReader();
+            await reader.scan();
+            
+            reader.onreading = async event => {
+                const record = event.message.records[0];
+                if (record.recordType === "url") {
+                    const url = await record.data.text();
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('nfc-result').classList.add('d-none');
+                            document.getElementById('student-info').classList.remove('d-none');
+                            
+                            document.getElementById('student-name').textContent = data.name;
+                            document.getElementById('student-id').textContent = data.student_id;
+                            document.getElementById('student-program').textContent = 
+                                `${data.program} (${data.academic_year})`;
+                            document.getElementById('student-laptop').textContent = 
+                                data.laptop_serial || 'None';
+                            document.getElementById('student-photo').src = data.photo_url;
+                            
+                            const financeStatus = document.getElementById('finance-status');
+                            financeStatus.textContent = data.is_finance_cleared ? 
+                                '✅ Finance Cleared' : '❌ Finance Not Cleared';
+                            financeStatus.className = data.is_finance_cleared ? 
+                                'text-success' : 'text-danger';
+                        });
+                }
+            };
+        } catch (error) {
+            document.getElementById('nfc-result').innerHTML = `
+                <div class="alert alert-danger">
+                    NFC Error: ${error.message}
+                </div>
+            `;
+        }
+    } else {
+        document.getElementById('nfc-result').innerHTML = `
+            <div class="alert alert-warning">
+                Web NFC is not supported in this browser. Please use Chrome on Android.
+            </div>
+        `;
+    }
+}
+readNFC();
+</script>
+{% endblock %}
+{% endblock %}

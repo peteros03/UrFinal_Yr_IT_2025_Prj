@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card student-card mx-auto" style="max-width: 500px;">
+    <div class="card-header text-white bg-primary">
+        <h2 class="text-center">{{ student.name }}</h2>
+        <h4 class="text-center">{{ student.program }} - {{ student.academic_year }}</h4>
+    </div>
+    <div class="card-body text-center">
+        <img src="{{ student.photo.url }}" class="img-thumbnail mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+        
+        <div class="student-info">
+            <p><strong>Student ID:</strong> {{ student.student_id }}</p>
+            {% if student.laptop %}
+            <p><strong>Laptop Serial:</strong> {{ student.laptop.serial_number }}</p>
+            {% endif %}
+            <p>
+                <strong>Finance Status:</strong> 
+                <span class="badge bg-{% if student.is_finance_cleared %}success{% else %}danger{% endif %}">
+                    {% if student.is_finance_cleared %}Cleared{% else %}Not Cleared{% endif %}
+                </span>
+            </p>
+        </div>
+    </div>
+    <div class="card-footer text-muted">
+        <small>Card URL: {{ student.card_url }}</small>
+    </div>
+</div>
+
+<style>
+.student-card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.student-info {
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}

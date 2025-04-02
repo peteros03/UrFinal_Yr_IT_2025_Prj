@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<h1>Welcome to NFC Smartcard System</h1>
+<p>Choose your portal:</p>
+<ul>
+    <li><a href="{% url 'admin-portal' %}">Admin Portal</a></li>
+    <li><a href="{% url 'gate-portal' %}">Gate Portal</a></li>
+    <li><a href="{% url 'teacher-portal' %}">Teacher Portal</a></li>
+</ul>
+{% endblock %}
+
